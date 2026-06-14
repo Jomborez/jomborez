@@ -1,0 +1,297 @@
+// Рабочий код с кнопкой
+
+int button = 12;
+int a = 0;
+int b = 1;
+int c = 2;
+int d = 3;
+int e = 4;
+int f = 5;
+int g = 6;
+int p = 7;
+int d4 = 11;
+int d3 = 10;
+int d2 = 9;
+int d1 = 8;
+
+
+const int SHOW_DELAY = 10;
+const int TIMER_TIMES = 2.5 * SHOW_DELAY;
+
+bool pressed = false;
+int count = 0;
+int n = 0;
+int stage = 0;
+
+void onClickButton(){
+  stage++;
+  if (count >= 60 && stage == 2) {
+    return;
+  }
+
+  if(stage == 0){
+    count = 0;
+    n = 0;
+  } else if(stage >= 3){
+    count = 0;
+    n = 0;
+    stage = 0;
+  }
+
+}
+	
+void setup()
+{
+  //пины на вывод
+  pinMode(d1, OUTPUT);
+  pinMode(d2, OUTPUT);
+  pinMode(d3, OUTPUT);
+  pinMode(d4, OUTPUT);
+  pinMode(a, OUTPUT);
+  pinMode(b, OUTPUT);
+  pinMode(c, OUTPUT);
+  pinMode(d, OUTPUT);
+  pinMode(e, OUTPUT);
+  pinMode(f, OUTPUT);
+  pinMode(g, OUTPUT);
+  pinMode(p, OUTPUT);
+  pinMode(button, INPUT);
+
+}
+
+void displayNumber(int number) {
+    clearLEDs();
+    pickDigit(0);
+    pickNumber((number/1000));
+    delay(SHOW_DELAY);
+  
+    clearLEDs();
+    pickDigit(1);
+    pickNumber((number%1000)/100);
+    delay(SHOW_DELAY);
+  
+    clearLEDs();
+    pickDigit(2);
+    pickNumber(number%100/10);
+    delay(SHOW_DELAY);
+
+    clearLEDs();
+    pickDigit(3);
+    pickNumber(number%10);
+    delay(SHOW_DELAY);
+}
+ 
+void loop()
+{
+  displayNumber(count);
+  while (digitalRead(button) == LOW) {
+    displayNumber(count);
+    pressed = false;
+
+    if(count < 60 && stage == 1) n++;
+    
+    if(n >= TIMER_TIMES && stage == 1){
+        count++;
+        n = 0;
+    }
+  }
+  if (digitalRead(button) == HIGH && !pressed) { 
+    onClickButton();
+    pressed = true; 
+  }
+}
+ 
+// определение разряда
+void pickDigit(int x)
+{  
+  digitalWrite(d1, HIGH);
+  digitalWrite(d2, HIGH);
+  digitalWrite(d3, HIGH);
+  digitalWrite(d4, HIGH);
+ 
+  switch(x)
+  {
+    case 0: 
+    digitalWrite(d1, LOW); //включаем d1
+    break;
+    case 1: 
+    digitalWrite(d2, LOW); //включаем d2
+    break;
+    case 2: 
+    digitalWrite(d3, LOW); //включаем d3
+    break;
+    default: 
+    digitalWrite(d4, LOW); //включаем d4
+    break;
+  }
+}
+ 
+void pickNumber(int x)
+{
+  switch(x)
+  {
+    default: 
+    zero(); 
+    break;
+    case 1: 
+    one(); 
+    break;
+    case 2: 
+    two(); 
+    break;
+    case 3: 
+    three(); 
+    break;
+    case 4: 
+    four(); 
+    break;
+    case 5: 
+    five(); 
+    break;
+    case 6: 
+    six(); 
+    break;
+    case 7: 
+    seven(); 
+    break;
+    case 8: 
+    eight(); 
+    break;
+    case 9: 
+    nine(); 
+    break;
+  }
+} 
+	
+// очистка
+void clearLEDs()
+{
+  digitalWrite(a, LOW);
+  digitalWrite(b, LOW);
+  digitalWrite(c, LOW);
+  digitalWrite(d, LOW);
+  digitalWrite(e, LOW);
+  digitalWrite(f, LOW);
+  digitalWrite(g, LOW);
+  digitalWrite(p, LOW);
+}
+ 
+// вывод 0
+void zero()
+{
+  digitalWrite(a, HIGH);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, HIGH);
+  digitalWrite(e, HIGH);
+  digitalWrite(f, HIGH);
+  digitalWrite(g, LOW);
+}
+ 
+// вывод 1
+void one()
+{
+  digitalWrite(a, LOW);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, LOW);
+  digitalWrite(e, LOW);
+  digitalWrite(f, LOW);
+  digitalWrite(g, LOW);
+}
+ 
+// вывод 2
+void two()
+{
+  digitalWrite(a, HIGH);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, LOW);
+  digitalWrite(d, HIGH);
+  digitalWrite(e, HIGH);
+  digitalWrite(f, LOW);
+  digitalWrite(g, HIGH);
+}
+	
+// вывод 3
+void three()
+{
+  digitalWrite(a, HIGH);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, HIGH);
+  digitalWrite(e, LOW);
+  digitalWrite(f, LOW);
+  digitalWrite(g, HIGH);
+}
+ 
+// вывод 4
+void four()
+{
+  digitalWrite(a, LOW);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, LOW);
+  digitalWrite(e, LOW);
+  digitalWrite(f, HIGH);
+  digitalWrite(g, HIGH);
+}
+ 
+// вывод 5
+void five()
+{
+  digitalWrite(a, HIGH);
+  digitalWrite(b, LOW);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, HIGH);
+  digitalWrite(e, LOW);
+  digitalWrite(f, HIGH);
+  digitalWrite(g, HIGH);
+}
+	
+// вывод 6
+void six()
+{
+  digitalWrite(a, HIGH);
+  digitalWrite(b, LOW);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, HIGH);
+  digitalWrite(e, HIGH);
+  digitalWrite(f, HIGH);
+  digitalWrite(g, HIGH);
+}
+ 
+// вывод 7
+void seven()
+{
+  digitalWrite(a, HIGH);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, LOW);
+  digitalWrite(e, LOW);
+  digitalWrite(f, LOW);
+  digitalWrite(g, LOW);
+}
+ 
+// вывод 8
+void eight()
+{
+  digitalWrite(a, HIGH);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, HIGH);
+  digitalWrite(e, HIGH);
+  digitalWrite(f, HIGH);
+  digitalWrite(g, HIGH);
+}
+ 
+// вывод 9
+void nine()
+{
+  digitalWrite(a, HIGH);
+  digitalWrite(b, HIGH);
+  digitalWrite(c, HIGH);
+  digitalWrite(d, HIGH);
+  digitalWrite(e, LOW);
+  digitalWrite(f, HIGH);
+  digitalWrite(g, HIGH);
+}
