@@ -1,0 +1,31 @@
+//Счётчик
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+
+LiquidCrystal_I2C lcd(0x20, 16, 2);
+
+const int button = 2;
+int value = 0;
+
+void setup() {
+  pinMode(button, INPUT_PULLUP);
+  
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Value=0");
+}
+
+void loop() {
+  if (digitalRead(button) == LOW) {
+    value = value + 1;           // увеличиваем
+    
+    lcd.clear();                 // очищаем экран
+    lcd.setCursor(0, 0);
+    lcd.print("Value=");         // выводим текст
+    lcd.print(value);            // ← ВОТ ТАК ВЫВОДИМ ЧИСЛО! БЕЗ КАВЫЧЕК!
+    
+    delay(300);                  // чтобы не срабатывало много раз
+  }
+}
