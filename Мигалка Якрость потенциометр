@@ -1,0 +1,54 @@
+//Мигалка или яркость потенциометр
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+const int led = 9;
+const int button = 2;
+const int potpin = A0;
+
+LiquidCrystal_I2C lcd(0x20, 16, 2);
+
+void setup() {
+  pinMode(led, OUTPUT);
+  pinMode(button, INPUT_PULLUP);
+  
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Hello");
+}
+
+void loop() {
+  if (digitalRead(button) == LOW)  // когда кнопка нажата
+  {
+    lcd.clear();
+    lcd.print("Mode: Migalka");
+  int potValue = analogRead(potpin);              // ✅ читаем значение
+  int delayTime = map(potValue, 0, 1023, 100, 2000);  // ✅ маппим
+  
+  digitalWrite(led, HIGH);
+  delay(delayTime);   // ✅ теперь delayTime везде одинаково
+  
+  digitalWrite(led, LOW);
+  delay(delayTime);
+  }
+  else {
+    
+    lcd.setCursor(0, 0);
+    lcd.print("Mode: BRIGHT");
+    
+    int potValue = analogRead(potpin);
+    int brightness = map(potValue, 0, 1023, 0, 255);
+    
+    analogWrite(led, brightness);   // ← плавная регулировка!
+    
+    // Показываем яркость на LCD
+    lcd.setCursor(0, 1);
+    lcd.print("Bright: ");
+    lcd.print(brightness);
+    lcd.print("   ");  // пробелы, чтобы стереть хвосты
+    
+    delay(200);  // небольшая задержка для стабильности
+  }
+}
