@@ -1,0 +1,134 @@
+//Секундомер
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+
+// ========== НАСТРОЙКА LCD ==========
+LiquidCrystal_I2C lcd(0x20, 16, 2);
+
+// ========== ПИНЫ ==========
+const int led = 9;              // светодиод (по ТЗ пин 9)
+const int buttonStart = 2;      // кнопка Старт/Стоп (по ТЗ пин 2)
+const int buttonReset = 3;      // кнопка Сброс (по ТЗ пин 3)
+
+// ========== ПЕРЕМЕННЫЕ ==========
+bool running = false;           // true = секундомер идёт, false = стоп
+unsigned long lastTick = 0;     // для millis-таймера
+int seconds = 0;                // накопленные секунды
+int minutes = 0;                // накопленные минуты
+
+// Для антидребезга кнопок
+bool lastStartState = HIGH;
+bool lastResetState = HIGH;
+
+void setup() {
+  // Настройка пинов
+  pinMode(led, OUTPUT);
+  pinMode(buttonStart, INPUT_PULLUP);
+  pinMode(buttonReset, INPUT_PULLUP);
+  
+  // Настройка LCD
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Time: 00:00");
+  lcd.setCursor(0, 1);
+  lcd.print("Status: STOP");
+}
+
+void loop() {
+  // ===== ОБРАБОТКА КНОПОК (без delay!) =====
+  bool startState = digitalRead(buttonStart);
+  bool resetState = digitalRead(buttonReset);
+  
+  // Кнопка Старт/Стоп (нажата = LOW)
+  if (startState == LOW && lastStartState == HIGH) {
+    running = !running;  // переключаем состояние
+    
+    // Обновляем статус на LCD
+    lcd.setCursor(0, 1);
+    lcd.print("                ");  // очищаем строку
+    lcd.setCursor(0, 1);
+    if (running) {
+      lcd.print("Status: RUN ");
+    } else {
+      lcd.print("Status: STOP");
+    }
+    delay(50);  // антидребезг
+  }
+  lastStartState = startState;
+  
+  // Кнопка Сброс
+  if (resetState == LOW && lastResetState == HIGH) {
+    seconds = 0;
+    minutes = 0;
+    running = false;  // остановить секундомер
+    
+    // Обновляем дисплей
+    updateTimeDisplay();
+    lcd.setCursor(0, 1);
+    lcd.print("                ");
+    lcd.setCursor(0, 1);
+    lcd.print("Status: STOP");
+    delay(50);
+  }
+  lastResetState = resetState;
+  
+  // ===== ТАЙМЕР (если секундомер идёт) =====
+  if (running) {
+    // Проверяем, прошла ли 1 секунда
+    if (millis() - lastTick >= 1000) {
+      lastTick = millis();
+      seconds++;
+      
+      // Переводим секунды в минуты
+      if (seconds >= 60) {
+        seconds = 0;
+        minutes++;
+      }
+      
+      // Максимум 99:59
+      if (minutes >= 100) {
+        minutes = 99;
+        seconds = 59;
+        running = false;  // остановить
+      }
+      
+      // Обновляем время на LCD
+      updateTimeDisplay();
+    }
+  }
+  
+  // ===== УПРАВЛЕНИЕ СВЕТОДИОДОМ (мигание) =====
+  if (running) {
+    // Мигаем 1 раз в секунду (500 мс горит, 500 мс не горит)
+    unsigned long ledTimer = millis() % 1000;
+    if (ledTimer < 500) {
+      digitalWrite(led, HIGH);
+    } else {
+      digitalWrite(led, LOW);
+    }
+  } else {
+    digitalWrite(led, LOW);  // когда секундомер на паузе — светодиод выключен
+  }
+}
+
+// Функция обновления времени на LCD
+void updateTimeDisplay() {
+  lcd.setCursor(0, 0);
+  
+  // Форматируем минуты (всегда 2 цифры)
+  if (minutes < 10) {
+    lcd.print("Time: 0");
+  } else {
+    lcd.print("Time: ");
+  }
+  lcd.print(minutes);
+  lcd.print(":");
+  
+  // Форматируем секунды (всегда 2 цифры)
+  if (seconds < 10) {
+    lcd.print("0");
+  }
+  lcd.print(seconds);
+}
