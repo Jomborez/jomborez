@@ -1,0 +1,43 @@
+// ===== ПИНЫ =====
+const int redPin = 10;
+const int yellowPin = 9;
+const int greenPin = 8;
+
+// ===== ПЕРЕМЕННЫЕ =====
+unsigned long lastTime = 0;
+int state = 0;          // 0=красный, 1=жёлтый, 2=зелёный, 3=жёлтый
+int intervals[] = {5000, 2000, 5000, 2000};  // длительности в мс
+
+void setup() {
+  pinMode(redPin, OUTPUT);
+  pinMode(yellowPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  
+  // Начинаем с красного
+  digitalWrite(redPin, HIGH);
+}
+
+void loop() {
+  // ===== ТАЙМЕР =====
+  if (millis() - lastTime >= intervals[state]) {
+    lastTime = millis();
+    state++;                          // переходим к следующему состоянию
+    if (state > 3) state = 0;         // зацикливаем 0→1→2→3→0
+    
+    updateLights();                   // обновляем светодиоды
+  }
+}
+
+// ===== ФУНКЦИЯ ОБНОВЛЕНИЯ =====
+void updateLights() {
+  // Выключаем все
+  digitalWrite(redPin, LOW);
+  digitalWrite(yellowPin, LOW);
+  digitalWrite(greenPin, LOW);
+  
+  // Включаем нужный
+  if (state == 0) digitalWrite(redPin, HIGH);
+  if (state == 1) digitalWrite(yellowPin, HIGH);
+  if (state == 2) digitalWrite(greenPin, HIGH);
+  if (state == 3) digitalWrite(yellowPin, HIGH);
+}
