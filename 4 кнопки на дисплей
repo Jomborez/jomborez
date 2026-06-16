@@ -1,0 +1,92 @@
+//Простая печатная машинка 4 кнопки вывод на дисплей
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+
+// ========== НАСТРОЙКА LCD ==========
+LiquidCrystal_I2C lcd(0x20, 16, 2);
+
+// ========== НАСТРОЙКА КНОПОК ==========
+const int buttonA = 2;    // кнопка A
+const int buttonB = 3;    // кнопка B
+const int buttonC = 4;    // кнопка C
+const int buttonSpace = 5; // кнопка пробел
+
+// ========== ПЕРЕМЕННЫЕ ==========
+String textLine = "";     // накопленный текст
+
+// Для антидребезга (запоминаем последнее состояние кнопок)
+bool lastStateA = HIGH;
+bool lastStateB = HIGH;
+bool lastStateC = HIGH;
+bool lastStateSpace = HIGH;
+
+void setup() {
+  // Настройка кнопок (с подтяжкой к питанию)
+  pinMode(buttonA, INPUT_PULLUP); // говорим что buttonA который был у нас 2, теперь становиться 2 пином. INPUT_PULLUP резистор на 5V
+  pinMode(buttonB, INPUT_PULLUP);
+  pinMode(buttonC, INPUT_PULLUP);
+  pinMode(buttonSpace, INPUT_PULLUP);
+  
+  // Настройка LCD
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Type:");
+}
+
+void loop() {
+  // Читаем состояние каждой кнопки
+  bool stateA = digitalRead(buttonA);
+  bool stateB = digitalRead(buttonB);
+  bool stateC = digitalRead(buttonC);
+  bool stateSpace = digitalRead(buttonSpace);
+  
+  // === ОБРАБОТКА КНОПКИ A ===
+  if (stateA == LOW && lastStateA == HIGH) {
+    textLine += "A";
+    updateDisplay();
+    delay(150);  // антидребезг
+  }
+  lastStateA = stateA;
+  
+  // === ОБРАБОТКА КНОПКИ B ===
+  if (stateB == LOW && lastStateB == HIGH) {
+    textLine += "B";
+    updateDisplay();
+    delay(150);
+  }
+  lastStateB = stateB;
+  
+  // === ОБРАБОТКА КНОПКИ C ===
+  if (stateC == LOW && lastStateC == HIGH) {
+    textLine += "C";
+    updateDisplay();
+    delay(150);
+  }
+  lastStateC = stateC;
+  
+  // === ОБРАБОТКА КНОПКИ ПРОБЕЛ ===
+  if (stateSpace == LOW && lastStateSpace == HIGH) {
+    textLine += " ";
+    updateDisplay();
+    delay(150);
+  }
+  lastStateSpace = stateSpace;
+}
+
+// Функция обновления дисплея (чтобы не дублировать код)
+void updateDisplay() {
+  lcd.setCursor(0, 1);              // курсор на вторую строку
+  lcd.print("                ");     // очищаем строку
+  
+  lcd.setCursor(0, 1);
+  
+  if (textLine.length() <= 16) {
+    lcd.print(textLine);
+  } else {
+    // Показываем последние 16 символов
+    String displayText = textLine.substring(textLine.length() - 16);
+    lcd.print(displayText);
+  }
+}
